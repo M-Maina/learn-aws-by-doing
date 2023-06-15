@@ -1,0 +1,200 @@
+Introduction
+AWS networking consists of multiple components, and understanding the relationship between the networking components is a key part of understanding the overall functionality and capabilities of AWS. In this hands-on lab, we will create a VPC with an internet gateway, as well as create subnets across multiple Availability Zones.
+
+Solution
+Log in to the live AWS environment using the credentials provided. Make sure you're in the N. Virginia (us-east-1) region throughout the lab.
+
+Note: This guide follows a different order than the solution videos, but the results are the same.
+
+Create a VPC
+Navigate to VPC.
+
+In the sidebar menu, navigate to Virtual private cloud and select Your VPCs.
+
+On the right, click Create VPC.
+
+Configure the VPC settings:
+
+Name tag: In the text field, enter vpc1.
+IPv4 CIDR block: In the text field, enter 172.16.0.0/16.
+Leave the other settings as the defaults and click Create VPC.
+
+The VPC is created but does not have an internet gateway, subnets, or any other functionality.
+
+Create a Public and Private Subnet in Different Availability Zones
+In the sidebar menu, select Subnets.
+
+On the right, click Create subnet.
+
+Configure the public subnet:
+
+VPC ID: Use the dropdown to select vpc1.
+Subnet name: In the text field, enter Public1.
+Availability Zone: Use the dropdown to select us-east-1a.
+IPv4 CIDR block: In the field, select 172.16.1.0/24. Any EC2 instances assigned to this subnet will have an IP address prefix of 172.16.1.
+Click Create subnet.
+
+The public subnet is created.
+
+On the right, click Create subnet again.
+
+Configure the private subnet:
+
+VPC ID: Use the dropdown to select vpc1.
+Subnet name: In the text field, enter Private1.
+Availability Zone: Use the dropdown to select us-east-1b.
+IPv4 CIDR block: In the field, select 172.16.2.0/24.
+Click Create subnet.
+
+The private subnet is created.
+
+Create Two Network Access Control Lists (NACLs), and Associate Each With the Proper Subnet
+Create and Configure a Public NACL
+In the sidebar menu, navigate to Security and select Network ACLs.
+
+You should see a default NACL available. However, you won't use this NACL.
+
+On the right, click Create network ACL.
+
+Configure the public NACL:
+
+Name: In the text field, enter PublicNACL.
+VPC: Use the dropdown to select vpc1.
+Click Create network ACL.
+
+After the NACL is created, check the checkbox next to PublicNACL.
+
+Select the Inbound rules tab and then click Edit inbound rules.
+
+Add two inbound rules:
+
+Click Add new rule.
+Fill in the rule details:
+Rule number: In the text field, enter 100.
+Type: Use the dropdown to select HTTP (80).
+Source: Leave the source as 0.0.0.0/0.
+Click Add new rule again.
+Fill in the rule details:
+Rule number: In the text field, enter 110.
+Type: Use the dropdown to select SSH (22).
+Source: Leave the source as 0.0.0.0/0.
+Click Save changes.
+
+From the PublicNACL details, select the Outbound rules tab and then click Edit outbound rules.
+
+Add an outbound rule:
+
+Click Add new rule.
+Fill in the rule details:
+Rule number: In the text field, enter 100.
+Type: Leave the type as Custom TCP.
+Port range: In the text field, enter 1024-65535.
+Destination: Leave the destination as 0.0.0.0/0.
+Click Save changes.
+
+From the PublicNACL details, select the Subnet associations tab and then click Edit subnet associations.
+
+Check the checkbox next to the Public1 subnet.
+
+Click Save changes to associate your public NACL with the public subnet.
+
+Create and Configure a Private NACL
+From the Network ACLs page, click Create network ACL.
+Configure the private NACL:
+Name: In the text field, enter PrivateNACL.
+VPC: Use the dropdown to select vpc1.
+Click Create network ACL.
+Check the checkbox next to PrivateNACL, ensuring that it's the only NACL selected.
+Select the Inbound rules tab and then click Edit inbound rules.
+Add an inbound rule:
+Click Add new rule.
+Fill in the rule details:
+Rule number: In the text field, enter 100.
+Type: Use the dropdown to select SSH (22).
+Source: In the text field, enter 172.16.1.0/24.
+Click Save changes.
+From the PrivateNACL details, select the Outbound rules tab and then click Edit outbound rules.
+Add an outbound rule:
+Click Add new rule.
+Fill in the rule details:
+Rule number: In the text field, enter 100.
+Type: Leave the type as Custom TCP.
+Port range: In the text field, enter 1024-65535.
+Destination: Leave the destination as 0.0.0.0/0.
+Click Save changes.
+From the PrivateNACL details, select the Subnet associations tab and then click Edit subnet associations.
+Check the checkbox next to the Private1 subnet.
+Click Save changes to associate your private NACL with the private subnet.
+Create an Internet Gateway, and Connect It to the VPC
+In the sidebar menu, navigate to Virtual private cloud and select Internet gateways.
+
+On the right, click Create internet gateway.
+
+In the Name tag field, enter IGW.
+
+Click Create internet gateway.
+
+After the internet gateway is created, use the Actions dropdown to select Attach to VPC.
+
+In the Available VPCs field, select vpc1.
+
+Click Attach internet gateway.
+
+Your internet gateway should now be in an Attached state.
+
+Create Two Route Tables, and Associate Them with the Correct Subnet
+Create the Route Tables
+In the sidebar menu, select Route tables.
+
+You should see a default route table available. However, you will not use this route table.
+
+On the right, click Create route table.
+
+Configure the public route table:
+
+Name: In the text field, enter PublicRT.
+VPC: Use the dropdown to select vpc1.
+Click Create route table.
+
+In the sidebar menu, select Route tables again.
+
+On the right, click Create route table.
+
+Configure the private route table:
+
+Name: In the text field, enter PrivateRT.
+VPC: Use the dropdown to select vpc1.
+Click Create route table.
+
+Associate the Route Tables with the Correct Subnet
+In the sidebar menu, select Route tables again.
+Check the checkbox next to the PublicRT route table, ensuring that this is the only route table selected.
+Add a route to the internet gateway:
+Select the Routes tab and click Edit routes.
+
+Click Add route to add a route to the internet gateway.
+
+In the Destination field, select 0.0.0.0/0.
+
+In the Target field, select Internet Gateway, and then select the igw gateway.
+
+Click Save changes.
+
+Now, any traffic that's not destined for the local network will be routed to the internet gateway.
+
+In the sidebar menu, select Route tables again and ensure the checkbox next to PublicRT is checked.
+Associate the route table with the public subnet:
+Select the Subnet associations tab.
+In the Subnets without explicit associations section, click Edit subnet associations.
+Check the checkbox next to the Public1 subnet.
+Click Save associations.
+In the sidebar menu, select Route tables again.
+Check the checkbox next to the PrivateRT route table, ensuring that this is the only route table selected.
+Select the Routes tab and note that the local route already exists. For this route table, you don't need to create another route to the internet gateway.
+Associate the route table with the private subnet:
+Select the Subnet associations tab.
+In the Subnets without explicit associations section, click Edit subnet associations.
+Check the checkbox next to the Private1 subnet.
+Click Save associations.
+Conclusion
+
