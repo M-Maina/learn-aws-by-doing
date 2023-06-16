@@ -1,0 +1,87 @@
+Introduction
+In this live AWS environment you will create your own EC2 workstation in the AWS console. This will be a useful skill whenever you find yourself working in an AWS environment. Not only will you learn some of the nuances of creating EC2 instances through this process, you'll also be able to do this again in your own AWS environment to create your own AWS workstation that is free from the clutter of a local machine.
+
+By the end of this Learning Activity, we will have created our own EC2 instance and signed into it with an SSH key. We will also have used that instance to create an S3 Bucket in our AWS account and used the instance to have the Simple Notification Service send us a text message.
+
+Solution
+Log in to the AWS Management Console using the credentials provided on the lab instructions page. Make sure you're using the us-east-1 region.
+
+Create an EC2 Instance
+From the AWS Management Console, navigate to the EC2 dashboard.
+Click Launch Instance.
+Select Amazon Linux 2 AMI.
+For the Instance Type, select t2.micro and click Configure Instance Details.
+Change the IAM role to the lab-provided EC2InstanceCDALabRole and click Next: Add Storage.
+Click Next: Add Tags.
+Add a tag with a Key of "CreatedBy", and provide an email for the Value.
+Click Next: Configure Security Group.
+Click Review and Launch.
+Confirm that the EC2 instance details are correct and click Launch.
+When presented with the key pair dialogue, select Create a new key pair from the list.
+Give the key pair a name and click Download Key Pair. Take note of the location of the .pem file when it is downloaded.
+Note: If the key pair is not downloaded at this time, it cannot be downloaded again.
+
+Click Launch Instances.
+Click View Instances to return to the EC2 dashboard.
+Use the EC2 Instance to Create an S3 Bucket with the AWS CLI and Send a Message with SNS
+Using a local terminal application, modify the permissions for the key pair:
+
+chmod 400 <KEY_PAIR_NAME>.pem
+Note: You must be in the same directory as the .pem file when running the above command.
+
+Back in the Instances list, select the recently created EC2 instance, and click Connect.
+
+Select the SSH client tab, and copy the ssh command provided under Example.
+
+In a local terminal application, paste the SSH command and attempt to connect to the EC2 instance.
+
+Test the AWS CLI functionality by attempting to list dynamodb tables:
+
+aws dynamodb list-tables
+Configure the AWS CLI by running the following command:
+
+aws configure
+Then, set the following values:
+
+AWS Access Key ID [None]:
+AWS Secret Access Key [None]:
+Default region name [None]: us-east-1
+Default output format [None]:
+Once configured, attempt to list the dynamodb tables again:
+
+aws dynamodb list-tables
+List any current s3 buckets:
+
+aws s3 ls
+Using the AWS CLI, create a new s3 bucket:
+
+aws s3 mb s3://<BUCKET-NAME-123456>
+Note: S3 buckets must have a globally unique name, so appending a random string of characters to the end of the bucket name can help if you encounter errors.
+
+List the current buckets again:
+
+aws s3 ls
+Using the following command, install python-pip:
+
+sudo yum -y install python-pip
+Using pip install boto3:
+
+sudo pip install boto3
+Once installed, enter the python command line:
+
+python
+Import the boto3 package:
+
+import boto3
+Create the sns client:
+
+sns = boto3.client('sns')
+Create a variable for your phone number:
+
+phone_number='<PHONE_NUMBER>'
+Using sns, send yourself a message:
+
+sns.publish(Message='Hello from A Cloud Guru',PhoneNumber=phone_number)
+Conclusion
+
+
